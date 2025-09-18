@@ -18,7 +18,40 @@ string apiKey = config["apiKey"]!;
 var builder = Kernel.CreateBuilder();
 builder.AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
 
+
+
 // Build the kernel
 Kernel kernel = builder.Build();
 var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+
+kernel.ImportPluginFromType<CurrencyConverterPlugin>();
+OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
+{
+    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+};
+
+var history = new ChatHistory();
+
+void AddUserMessage(string msg) 
+{
+    Console.WriteLine("User: " + msg);
+    history.AddUserMessage(msg);
+}
+
+async Task GetReply()
+{
+    ChatMessageContent reply = await chatCompletionService.GetChatMessageContentAsync(
+        history,
+        executionSettings: openAIPromptExecutionSettings,
+        kernel: kernel
+    );
+
+    Console.WriteLine("Assistant: " + reply.ToString());
+    history.AddAssistantMessage(reply.ToString());
+}
+
+
+AddUserMessage("Can you convert 52000 VND to USD?");
+await GetReply();
+
 

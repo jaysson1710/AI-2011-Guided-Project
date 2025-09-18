@@ -25,6 +25,8 @@ var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 // Solution code
 kernel.ImportPluginFromType<CurrencyConverterPlugin>();
 kernel.ImportPluginFromType<FlightBookingPlugin>();
+kernel.FunctionInvocationFilters.Add(new PermissionFilter());
+
 OpenAIPromptExecutionSettings promptExecutionSettings = new() 
 {
     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
